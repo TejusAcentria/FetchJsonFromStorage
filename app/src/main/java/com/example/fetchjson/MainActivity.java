@@ -58,20 +58,17 @@ public class MainActivity extends AppCompatActivity {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(yourFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             jsonStr = Charset.defaultCharset().decode(bb).toString();
             detailsListPojo = new Gson().fromJson(parseJSONData(jsonStr), DetailsListPojo.class);
-            detailAdapter = new DetailAdapter(this, detailsListPojo.getDetails());
-            fetchJsonRecycler.setAdapter(detailAdapter);
-            Log.d("checkingdatra", "" + detailsListPojo);
+            put_to_recycler(detailsListPojo);
 
-        } catch (Exception e) {
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -80,6 +77,12 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void put_to_recycler(DetailsListPojo detailsListPojo) {
+        detailAdapter = new DetailAdapter(this, detailsListPojo.getDetails());
+        fetchJsonRecycler.setAdapter(detailAdapter);
+        Log.d("checkingdatra", "" + detailsListPojo);
     }
 
     @SuppressLint("NewApi")
