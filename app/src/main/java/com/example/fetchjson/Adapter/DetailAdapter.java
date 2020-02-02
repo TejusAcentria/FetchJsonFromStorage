@@ -12,6 +12,7 @@ import com.example.fetchjson.MainActivity;
 import com.example.fetchjson.POJO.Detail;
 import com.example.fetchjson.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder> {
@@ -43,6 +44,11 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     @Override
     public int getItemCount() {
         return _details.size();
+    }
+
+    public void filterList(ArrayList<Detail> filterdNames) {
+        this._details=filterdNames;
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

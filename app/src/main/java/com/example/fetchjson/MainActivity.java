@@ -6,7 +6,10 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.EditText;
 
 import com.example.fetchjson.Adapter.DetailAdapter;
 import com.example.fetchjson.POJO.Detail;
@@ -25,6 +28,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
     LinearLayoutManager linearLayoutManager;
     DetailAdapter detailAdapter;
     String jsonStr = null;
-    private List<Detail> dataSet;
+    EditText jsonSearch;
+    String search_text = "";
+
+    private List<Detail> details = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +48,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         fetchJsonRecycler = findViewById(R.id.fetchJsonRecycler);
+        jsonSearch = findViewById(R.id.jsonSearch);
 
         linearLayoutManager = new LinearLayoutManager(this);
         fetchJsonRecycler.setLayoutManager(linearLayoutManager);
 
+
+        jsonSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                search_text = String.valueOf(s);
+                filter(search_text);
+            }
+        });
 
         getfileFromDownload();
 
@@ -64,11 +91,9 @@ public class MainActivity extends AppCompatActivity {
             detailsListPojo = new Gson().fromJson(parseJSONData(jsonStr), DetailsListPojo.class);
             put_to_recycler(detailsListPojo);
 
-        }catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -80,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void put_to_recycler(DetailsListPojo detailsListPojo) {
+        details = detailsListPojo.getDetails();
         detailAdapter = new DetailAdapter(this, detailsListPojo.getDetails());
         fetchJsonRecycler.setAdapter(detailAdapter);
         Log.d("checkingdatra", "" + detailsListPojo);
@@ -107,5 +133,15 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         return JSONString;
+    }
+
+    private void filter(String text) {
+        ArrayList<Detail> filterdNames = new ArrayList<>();
+        for (Detail s : details) {
+            if (s.getFirstName().toLowerCase().contains(text.toLowerCase()) || s.getAddress().toLowerCase().contains(text.toLowerCase())) {
+                filterdNames.add(s);
+            }
+        }
+        detailAdapter.filterList(filterdNames);
     }
 }
